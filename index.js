@@ -1,14 +1,26 @@
 const fs = require('fs').promises;
 
-const SCHEDULE = [
-    ["08:30", "10:05"],
-    ["10:15", "11:50"],
-    ["12:50", "14:25"],
-    ["14:35", "16:10"],
-    ["16:20", "17:55"]
+const SCHEDULE = {
+    1: ["08:30", "10:05"],
+    2: ["10:15", "11:50"],
+    3: ["12:50", "14:25"],
+    4: ["14:35", "16:10"],
+    5: ["16:20", "17:55"]
+};
 
-]
+const DAYOFTHEWEEK = {
+    "Понедельник": 01,
+    "Вторник": 02,
+    "Среда": 03,
+    "Четверг": 04,
+    "Пятница": 05,
+    "Суббота": 06
+};
 
+const WEEKODDEVEN = {
+	"НЕЧЕТНАЯ НЕДЕЛЯ": 01,
+	"ЧЕТНАЯ НЕДЕЛЯ": 02
+}
 
 async function readFile(filePath) {
     try {
@@ -36,12 +48,20 @@ async function readFile(filePath) {
                     .replace(/\s+/g, " ")
                     .split("; ");
                 // output[key][4] = element[4].map(el => el.toUpperCase())
-                console.log(
-                    key,
-                    element
-                );
+                console.log(key, element);
             }
-        }
+		}
+		output.map((el) => {
+			el[2] |= 0;
+			el[3] |= 0;
+			const dur = el[3] - 1;
+			// el[0] = WEEKODDEVEN[el[0]];
+			// el[1] = DAYOFTHEWEEK[el[1]];
+			el[2] = [
+				SCHEDULE[el[2]][0],
+				SCHEDULE[el[2] + dur][1]
+			]
+		})
 
         console.log(output);
 
