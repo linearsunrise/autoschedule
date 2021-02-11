@@ -47,11 +47,33 @@ function parseEvent(inputArray) {
 				.replace(/ауд./, "Аудитория ")
 				.replace(/\s+/g, " ")
 				.split("; ");
-			arr[key][4] = element[4].map(el => el.toUpperCase())
+			// arr[key][4] = element[4].map(el => el.toUpperCase())
 
 			// console.log(key, element);
 		}
 	}
+
+	arr.map((el) => {
+		el[2] |= 0;
+		el[3] |= 0;
+		const dur = el[3] - 1;
+		el[0] = WEEKODDEVEN[el[0]];
+		el[1] = DAYOFTHEWEEK[el[1]];
+		const date = [
+			STARTDATE[0],
+			STARTDATE[1],
+			STARTDATE[2] + el[1] + (el[0] - 1)*7,
+		].map(el => el > 9 ? "" + el : "0" + el)
+
+		el[2] = [
+			el[3],
+			new Date(`${date.join('-')}T${SCHEDULE[el[2]][0]}${TIMEZONE}`),
+			new Date(`${date.join('-')}T${SCHEDULE[el[2] + dur][1]}${TIMEZONE}`),
+		]
+		el.splice(0,2);
+		el.splice(1,1);
+	})
+
 	return arr
 };
 
@@ -59,27 +81,6 @@ async function readFile(filePath) {
     try {
         const data = await fs.readFile(filePath);
         let output = parseEvent(data.toString());
-        
-		output.map((el) => {
-			el[2] |= 0;
-			el[3] |= 0;
-			const dur = el[3] - 1;
-			el[0] = WEEKODDEVEN[el[0]];
-			el[1] = DAYOFTHEWEEK[el[1]];
-			const date = [
-				STARTDATE[0],
-				STARTDATE[1],
-				STARTDATE[2] + el[1] + (el[0] - 1)*7,
-			].map(el => el > 9 ? "" + el : "0" + el)
-
-			el[2] = [
-				el[3],
-				new Date(`${date.join('-')}T${SCHEDULE[el[2]][0]}${TIMEZONE}`),
-				new Date(`${date.join('-')}T${SCHEDULE[el[2] + dur][1]}${TIMEZONE}`),
-			]
-			el.splice(0,2);
-			el.splice(1,1);
-		})
 
         console.log(output);
 
