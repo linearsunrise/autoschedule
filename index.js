@@ -1,8 +1,9 @@
 const fs = require('fs').promises;
 
 const TIMEZONE = '+04:00';
+const TZID = "Europe/Samara";
 const STARTDATE = [2021, 02, 01];
-const ENDPERIOD = timeStamp(new Date('2021-06-31'))
+const ENDPERIOD = timeStamp(new Date('2021-06-31'));
 
 const SCHEDULE = {
 	1: ["08:30", "10:05"],
@@ -121,7 +122,6 @@ function iCalParser(arrayElement) {
 	const string = arrayElement;
 	const TIMESTAMP = timeStamp(new Date());
 	const UID = `${uuid()}`;
-	const TZID = "Europe/Samara";
 	const DTSTART = timeStamp(string[0][1]);
 	const DTEND = timeStamp(string[0][2]);
 	const UNTIL = ENDPERIOD;
@@ -160,18 +160,8 @@ VERSION:2.0
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 BEGIN:VTIMEZONE
-TZID:Etc/UTC
-X-LIC-LOCATION:Etc/UTC
-BEGIN:STANDARD
-TZOFFSETFROM:+0000
-TZOFFSETTO:+0000
-TZNAME:GMT
-DTSTART:19700101T000000
-END:STANDARD
-END:VTIMEZONE
-BEGIN:VTIMEZONE
-TZID:Europe/Samara
-X-LIC-LOCATION:Europe/Samara
+TZID:${TZID}
+X-LIC-LOCATION:${TZID}
 BEGIN:STANDARD
 TZOFFSETFROM:+0400
 TZOFFSETTO:+0400
