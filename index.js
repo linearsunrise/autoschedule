@@ -90,7 +90,10 @@ function titleCase(str) {
 }
 
 function timeStamp(str) {
-	return str.toISOString()
+	const date = new Date(
+		str.setHours(str.getHours() - new Date().getTimezoneOffset()/60)
+	);
+	return date.toISOString()
 		.replace(/-/g, '')
 		.replace(/\:/g, '')
 		.replace(/\.\d+Z$/g, 'Z')
@@ -183,8 +186,8 @@ async function readFile(filePath) {
 		// 	console.log(iCalParser(el))
 		// })
 
-		// console.log(icalWrapper(output))
-		console.log(output);
+		console.log(icalWrapper(output))
+		// console.log(output);
 
 	} catch (error) {
 		console.error(`Got an error trying to read the file: ${error.message}`);
