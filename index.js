@@ -122,8 +122,8 @@ function iCalParser(arrayElement) {
 	const TIMESTAMP = timeStamp(new Date());
 	const UID = `${uuid()}`;
 	const TZID = "Europe/Samara";
-	const DTSTART = timeStampLocale(string[0][1]);
-	const DTEND = timeStampLocale(string[0][2]);
+	const DTSTART = timeStamp(string[0][1]);
+	const DTEND = timeStamp(string[0][2]);
 	const UNTIL = ENDPERIOD;
 	const BYDAY = day[string[0][1].getDay()];
 	const DESCRIPTION = [
@@ -136,8 +136,8 @@ function iCalParser(arrayElement) {
 
 	return (
 		`BEGIN:VEVENT
-DTSTART;TZID=${TZID}:${DTSTART}
-DTEND;TZID=${TZID}:${DTEND}
+DTSTART:${DTSTART}
+DTEND:${DTEND}
 RRULE:FREQ=WEEKLY;UNTIL=${UNTIL};INTERVAL=2;BYDAY=${BYDAY}
 DTSTAMP:${TIMESTAMP}
 UID:${UID}
