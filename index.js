@@ -125,32 +125,56 @@ function iCalParser(arrayElement) {
 	const SUMMARY = `${string[1][0]}. ${string[1][1]}`;
 
 	return (
-		`BEGIN:VEVENT
-	DTSTART;TZID=${TZID}:${DTSTART}
-	DTEND;TZID=${TZID}:${DTEND}
-	RRULE:FREQ=WEEKLY;UNTIL=${UNTIL};INTERVAL=2;BYDAY=${BYDAY}
-	DTSTAMP:${TIMESTAMP}
-	UID:${UID}
-	CREATED:${TIMESTAMP}
-	DESCRIPTION:${DESCRIPTION}
-	LAST-MODIFIED:${TIMESTAMP}
-	LOCATION:${LOCATION}
-	SEQUENCE:0
-	STATUS:CONFIRMED
-	SUMMARY:${SUMMARY}
-	TRANSP:OPAQUE
-END:VEVENT
+		`	BEGIN:VEVENT
+		DTSTART;TZID=${TZID}:${DTSTART}
+		DTEND;TZID=${TZID}:${DTEND}
+		RRULE:FREQ=WEEKLY;UNTIL=${UNTIL};INTERVAL=2;BYDAY=${BYDAY}
+		DTSTAMP:${TIMESTAMP}
+		UID:${UID}
+		CREATED:${TIMESTAMP}
+		DESCRIPTION:${DESCRIPTION}
+		LAST-MODIFIED:${TIMESTAMP}
+		LOCATION:${LOCATION}
+		SEQUENCE:0
+		STATUS:CONFIRMED
+		SUMMARY:${SUMMARY}
+		TRANSP:OPAQUE
+	END:VEVENT
 `)
+}
+
+function icalWrapper(eventList) {
+	return`BEGIN:VCALENDAR
+	PRODID:-//Google Inc//Google Calendar 70.9054//EN
+	VERSION:2.0
+	CALSCALE:GREGORIAN
+	METHOD:PUBLISH
+	X-WR-CALNAME:Blank
+	X-WR-TIMEZONE:Europe/Samara
+	X-WR-CALDESC:Blank
+	BEGIN:VTIMEZONE
+		TZID:Europe/Samara
+		X-LIC-LOCATION:Europe/Samara
+		BEGIN:STANDARD
+			TZOFFSETFROM:+0400
+			TZOFFSETTO:+0400
+			TZNAME:+04
+			DTSTART:19700101T000000
+		END:STANDARD
+	END:VTIMEZONE
+	${eventList.map(event => iCalParser(event)).join('')}
+END:VCALENDAR`
 }
 
 async function readFile(filePath) {
 	try {
 		const data = await fs.readFile(filePath);
 		let output = parseEvents(data.toString());
-		output.map(el => {
-			console.log(iCalParser(el))
-		})
+		// output.map(el => {
+		// 	console.log(iCalParser(el))
+		// })
 
+		console.log(icalWrapper(output))
 		// console.log(output);
 
 	} catch (error) {
