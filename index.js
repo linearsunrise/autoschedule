@@ -90,6 +90,13 @@ function titleCase(str) {
 }
 
 function timeStamp(str) {
+	return str.toISOString()
+		.replace(/-/g, '')
+		.replace(/\:/g, '')
+		.replace(/\.\d+Z$/g, 'Z')
+}
+
+function timeStampLocale(str) {
 	const date = new Date(
 		str.setHours(str.getHours() - new Date().getTimezoneOffset()/60)
 	);
@@ -115,8 +122,8 @@ function iCalParser(arrayElement) {
 	const TIMESTAMP = timeStamp(new Date());
 	const UID = `${uuid()}`;
 	const TZID = "Europe/Samara";
-	const DTSTART = timeStamp(string[0][1]);
-	const DTEND = timeStamp(string[0][2]);
+	const DTSTART = timeStampLocale(string[0][1]);
+	const DTEND = timeStampLocale(string[0][2]);
 	const UNTIL = ENDPERIOD;
 	const BYDAY = day[string[0][1].getDay()];
 	const DESCRIPTION = [
@@ -152,9 +159,6 @@ function icalWrapper(eventList) {
 	VERSION:2.0
 	CALSCALE:GREGORIAN
 	METHOD:PUBLISH
-	X-WR-CALNAME:Blank
-	X-WR-TIMEZONE:Europe/Samara
-	X-WR-CALDESC:Blank
 	BEGIN:VTIMEZONE
 		TZID:Etc/UTC
 		X-LIC-LOCATION:Etc/UTC
