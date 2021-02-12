@@ -47,10 +47,17 @@ function parseEvents(inputArray) {
 				.replace(/^(.*?); (.*?); (.*?)$/, "$2; $1; $3")
 				.replace(/ауд./, "Аудитория ")
 				.replace(/\s+/g, " ")
-				.split("; ");
-			// arr[key][4] = element[4].map(el => el.toUpperCase())
-
-			// console.log(key, element);
+				.split("; ")
+				.map(word => titleCase(word))
+				.map(word => {
+					const regex = /Аудитория (.*?)$/;
+					if (word.match(regex) !== null) {
+						const match = word.match(regex)
+						const result = word.replace(match[1], match[1].split("/").map(word => titleCase(word)).join(" / "));
+						return result;
+					};
+					return word;
+				});
 		}
 	}
 
@@ -78,19 +85,18 @@ function parseEvents(inputArray) {
 	return arr
 };
 
-function timeStamp(str) {
-	return [
-		str.getYear() + 1900,
-		str.getMonth()+1,
-		str.getDate(),
-		"T",
-		str.getHours(),
-		str.getMinutes(),
-		str.getSeconds(),
-		"Z"
-	].map(el => el > 9 || typeof(el) != 'number' ? "" + el : "0" + el)
-	.join("")
+function titleCase(str) {
+	return str.replace(str[0], str[0].toUpperCase())
 }
+
+function timeStamp(str) {
+	return str.toISOString()
+		.replace(/-/g, '')
+		.replace(/\:/g, '')
+		.replace(/\.\d+Z$/g, 'Z')
+}
+
+const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c, r) => ('x' == c ? (r = Math.random(new Date()) * 16 | 0) : (r & 0x3 | 0x8)).toString(16));
 
 function iCalParser(arrayElement) {
 	const day = {
@@ -103,6 +109,9 @@ function iCalParser(arrayElement) {
 		6: "SA"
 	}
 	const string = arrayElement;
+	const TIMESTAMP = timeStamp(new Date());
+	const UID = `${uuid()}`;
+	const TZID = "Europe/Samara";
 	const DTSTART = timeStamp(string[0][1]);
 	const DTEND = timeStamp(string[0][2]);
 	const UNTIL = ENDPERIOD;
@@ -112,19 +121,19 @@ function iCalParser(arrayElement) {
 		string[1][2],
 		string[1][3]
 	].join('\\n');
-	const LOCATION = string[1][3];
-	const SUMMARY = string[1][0];
+	const LOCATION = string[1][3].replace(/Аудитория /, "");
+	const SUMMARY = `${string[1][0]}. ${string[1][1]}`;
 
 	return (
-`BEGIN:VEVENT
-	DTSTART;TZID=Europe/Samara:${DTSTART}
-	DTEND;TZID=Europe/Samara:${DTEND}
+		`BEGIN:VEVENT
+	DTSTART;TZID=${TZID}:${DTSTART}
+	DTEND;TZID=${TZID}:${DTEND}
 	RRULE:FREQ=WEEKLY;UNTIL=${UNTIL};INTERVAL=2;BYDAY=${BYDAY}
-	DTSTAMP:20210210T202950Z
-	UID:1vkos60b34dt243i4q3clnk86i@google.com
-	CREATED:20180128T102236Z
+	DTSTAMP:${TIMESTAMP}
+	UID:${UID}
+	CREATED:${TIMESTAMP}
 	DESCRIPTION:${DESCRIPTION}
-	LAST-MODIFIED:20180128T102236Z
+	LAST-MODIFIED:${TIMESTAMP}
 	LOCATION:${LOCATION}
 	SEQUENCE:0
 	STATUS:CONFIRMED
