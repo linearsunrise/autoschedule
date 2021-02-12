@@ -2,7 +2,7 @@ const fs = require('fs').promises;
 
 const TIMEZONE = '+04:00';
 const STARTDATE = [2021, 02, 01];
-const ENDPERIOD = ''
+const ENDPERIOD = timeStamp(new Date('2021-06-31'))
 
 const SCHEDULE = {
 	1: ["08:30", "10:05"],
@@ -70,7 +70,7 @@ function parseEvents(inputArray) {
 		const date = [
 			STARTDATE[0],
 			STARTDATE[1],
-			STARTDATE[2] + el[1] + (el[0] - 1) * 7,
+			STARTDATE[2] + el[1] + (el[0] - 1) * 7 - 1,
 		].map(el => el > 9 ? "" + el : "0" + el)
 
 		el[2] = [
@@ -153,6 +153,16 @@ function icalWrapper(eventList) {
 	X-WR-TIMEZONE:Europe/Samara
 	X-WR-CALDESC:Blank
 	BEGIN:VTIMEZONE
+		TZID:Etc/UTC
+		X-LIC-LOCATION:Etc/UTC
+		BEGIN:STANDARD
+			TZOFFSETFROM:+0000
+			TZOFFSETTO:+0000
+			TZNAME:GMT
+			DTSTART:19700101T000000
+		END:STANDARD
+	END:VTIMEZONE
+	BEGIN:VTIMEZONE
 		TZID:Europe/Samara
 		X-LIC-LOCATION:Europe/Samara
 		BEGIN:STANDARD
@@ -162,8 +172,7 @@ function icalWrapper(eventList) {
 			DTSTART:19700101T000000
 		END:STANDARD
 	END:VTIMEZONE
-	${eventList.map(event => iCalParser(event)).join('')}
-END:VCALENDAR`
+	${eventList.map(event => iCalParser(event)).join('')}END:VCALENDAR`
 }
 
 async function readFile(filePath) {
@@ -174,8 +183,8 @@ async function readFile(filePath) {
 		// 	console.log(iCalParser(el))
 		// })
 
-		console.log(icalWrapper(output))
-		// console.log(output);
+		// console.log(icalWrapper(output))
+		console.log(output);
 
 	} catch (error) {
 		console.error(`Got an error trying to read the file: ${error.message}`);
