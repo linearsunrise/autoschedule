@@ -28,39 +28,59 @@ const WEEKODDEVEN = {
 }
 
 function parseEvents(inputArray) {
-	const arr = inputArray.replace(/\s+$/gm, '')
-		.replace(/\u0020+/gm, ' ')
-		.replace(/\t+/gm, ";\t")
-		.replace(/^(.*?\;){3}\t\w$/gm, "")
-		.split('\n')
-		.filter(word => word.length > 0)
-		.map(word => word.split(";\t"));
+	const matchWord = [
+		[/^(.*?) (лекция|практика|лабораторные работы) (.*?)/g, '$2; $1 $3'],
+		[/ (доцент|ассистент|профессор|старший преподаватель)/, '; $1'],
+		[/ (ауд\.|спортивный зал)(.*?)$/, '; $1$2'],
+		[/ (недел)(.*?); ((.*?))$/, '; $3; $1$2']
+	]
 
-	for (const key in arr) {
-		if (Object.hasOwnProperty.call(arr, key)) {
-			const element = arr[key];
-			arr[key][4] = element[4]
-				.replace(/ (доцент|профессор|старший преподаватель|ассистент)/, "; $1")
-				.replace(/^(.*?) (лекция|практика|Лабораторные работы)(.*?)$/, "$2; $1$3")
-				.replace(/ (Недели:)/, "; $1")
-				.replace(/ (ауд\..*?|Спортивный зал)/, "; $1")
-				.replace(/^((.*?;){3}) (Недели:.*?); (.*?)$/, "$1 $4; $3")
-				.replace(/^(.*?); (.*?); (.*?)$/, "$2; $1; $3")
-				.replace(/ауд./, "Аудитория ")
-				.replace(/\s+/g, " ")
-				.split("; ")
-				.map(word => titleCase(word))
-				.map(word => {
-					const regex = /Аудитория (.*?)$/;
-					if (word.match(regex) !== null) {
-						const match = word.match(regex)
-						const result = word.replace(match[1], match[1].split("/").map(word => titleCase(word)).join(" / "));
-						return result;
-					};
-					return word;
-				});
-		}
-	}
+	const arr = inputArray
+		.replace(/\s+$/gm, '')
+		.replace(/\t+/gm, ";\t")
+		.toLowerCase()
+		.split('\n')
+		.filter(word => word.match(/^(.*?\;){4}.*?$/g,))
+		.map(word => {
+			return word.replace(/\s+/g, ' ')
+			.split("; ")
+		})
+		.map((el1) => {
+			return el1.map((el, i) => {
+				let n = el
+				matchWord.forEach((m) => n = n.replace(m[0],m[1]))
+		
+				return el1.length !== i + 1
+					? el
+					: n.split('; ')
+				})
+			})
+
+	// for (const key in arr) {
+	// 	if (Object.hasOwnProperty.call(arr, key)) {
+	// 		const element = arr[key];
+	// 		arr[key][4] = element[4]
+	// 			.replace(/ (доцент|профессор|старший преподаватель|ассистент)/, "; $1")
+	// 			.replace(/^(.*?) (лекция|практика|Лабораторные работы)(.*?)$/, "$2; $1$3")
+	// 			.replace(/ (Недели:)/, "; $1")
+	// 			.replace(/ (ауд\..*?|Спортивный зал)/, "; $1")
+	// 			.replace(/^((.*?;){3}) (Недели:.*?); (.*?)$/, "$1 $4; $3")
+	// 			.replace(/^(.*?); (.*?); (.*?)$/, "$2; $1; $3")
+	// 			.replace(/ауд./, "Аудитория ")
+	// 			.replace(/\s+/g, " ")
+	// 			.split("; ")
+	// 			.map(word => titleCase(word))
+	// 			.map(word => {
+	// 				const regex = /Аудитория (.*?)$/;
+	// 				if (word.match(regex) !== null) {
+	// 					const match = word.match(regex)
+	// 					const result = word.replace(match[1], match[1].split("/").map(word => titleCase(word)).join(" / "));
+	// 					return result;
+	// 				};
+	// 				return word;
+	// 			});
+	// 	}
+	// }
 
 	arr.map((el) => {
 		el[2] |= 0;
@@ -180,8 +200,8 @@ async function readFile(filePath) {
 		// 	console.log(iCalParser(el))
 		// })
 
-		console.log(icalWrapper(output))
-		// console.log(output);
+		// console.log(icalWrapper(output))
+		console.log(output);
 
 	} catch (error) {
 		console.error(`Got an error trying to read the file: ${error.message}`);
